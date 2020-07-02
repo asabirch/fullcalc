@@ -15,10 +15,23 @@ function formulaToString(payload) {
 	}
 	return formula;
 }
+function typeOf(character) {
+	if ('1' || '2' || '3' || '4' || '5' || '6' || '7' || '8' || '9') {
+		return '#';
+	} else {
+		return 'op';
+    }
+}
+function combineNums(payload) {
+
+    }
+
+
+}
 const start = (say, sendButton) => {
 	say('Write the formula to perform a calculation!');
 	say('* for multiplication, / for division, + for addition, - for subtraction');
-	sendButton('Okay! Let\'s calculate', [{ title: 'let\'s go', payload: '1' }]);
+	sendButton('Okay! Let\'s calculate', [{ title: 'Let\'s go', payload: '1' }]);
 };
 
 
