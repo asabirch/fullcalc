@@ -191,8 +191,8 @@ const state = (payload, say, sendButton) => {
             { title: 'sqrt', payload: 'sqrt~' },
             { title: 'ln', payload: 'ln~' },
             { title: '^', payload: '^~' },
-            { title: 'e', payload: 'e~' },
-            { title: 'pi', payload: 'pi~' },
+            { title: 'e', payload: string(Math.E) + '~' },
+            { title: 'pi', payload: string(Math.PI) + '~' },
             { title: 'calc', payload: 'calc' }]);
     } else if (payloadArr[payloadArr.length - 1] === 'calc') {
         payloadCombined = combineFormula(payload.substring(0, payload.lastIndexOf('~calc')));
@@ -223,8 +223,8 @@ const state = (payload, say, sendButton) => {
             { title: 'sqrt', payload: payload + 'sqrt~' },
             { title: 'ln', payload: payload + 'sqrt~' },
             { title: '^', payload: payload + '^~' },
-            { title: 'e', payload: payload + 'e~' },
-            { title: 'pi', payload: payload + 'pi~' },
+            { title: 'e', payload: payload + string(Math.E) + '~' },
+            { title: 'pi', payload: payload + string(Math.PI) + '~' },
             { title: 'calc', payload: payload + 'calc' }]);
     }
 
