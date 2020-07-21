@@ -9,7 +9,17 @@ function formulaToString(payload) {
 }
 
 function calcTypeOf(character) {
-    if (character === '1' || character === '2' || character === '3' || character === '4' || character === '5' || character === '6' || character === '7' || character === '8' || character === '9') {
+    if (character === '1' ||
+        character === '0' ||
+        character === '2' ||
+        character === '3' ||
+        character === '4' ||
+        character === '5' ||
+        character === '6' ||
+        character === '7' ||
+        character === '8' ||
+        character === '9' ||
+        character === '.') {
         return '#';
     } else {
         return 'op';
@@ -46,6 +56,50 @@ function toStringNoTilda(arr) {
         finString += arr[j];
     }
     return finString;
+}
+
+function parenthChecker(payload) {
+    var i;
+    var right = 0;
+    var left = 0;
+    for (i = 0; i < payload.length; i++) {
+        if (payload[i] === '(') {
+            left++;
+
+        }
+        if (payload[i] === ')') {
+            right++;
+
+        }
+    }
+    if (right !== left) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+function opChecker(payload) {
+    var i;
+    for (i = 0; i < payload.length; i++) {
+        if (payload[i] === 'sin' ||
+            payload[i] === 'cos' ||
+            payload[i] === 'tan' ||
+            payload[i] === 'ln' ||
+            payload[i] === 'sqrt' ||
+            payload[i] === '('
+        ) {
+            if (calcTypeOf(payload[i - 1]) === '#' || calcTypeOf(payload[i + 1]) === 'op') {
+                return false;
+            }
+        }
+        if (payload[i] === ')') {
+            if (calcTypeOf(payload[i - 1]) === 'op' || calcTypeOf(payload[i + 1]) === '#') {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 function evalablePayload(payload) {
@@ -172,6 +226,7 @@ const state = (payload, say, sendButton) => {
         sendButton('input your formula', [
             { title: '(', payload: '(~' },
             { title: ')', payload: ')~' },
+            { title: '0', payload: '0~' },
             { title: '1', payload: '1~' },
             { title: '2', payload: '2~' },
             { title: '3', payload: '3~' },
@@ -191,18 +246,31 @@ const state = (payload, say, sendButton) => {
             { title: 'sqrt', payload: 'sqrt~' },
             { title: 'ln', payload: 'ln~' },
             { title: '^', payload: '^~' },
-            { title: 'e', payload: string(Math.E) + '~' },
-            { title: 'pi', payload: string(Math.PI) + '~' },
-            { title: 'calc', payload: 'calc' }]);
+            { title: 'e', payload: String(Math.E) + '~' },
+            { title: 'pi', payload: String(Math.PI) + '~' }]);
     } else if (payloadArr[payloadArr.length - 1] === 'calc') {
-        payloadCombined = combineFormula(payload.substring(0, payload.lastIndexOf('~calc')));
-        var calced = evalablePayload(payloadCombined);
-        sendButton('Your calculated value is: ' + calced, [{ title: 'Perform Another Calc.', payload: 'restart' }]);
+        if (!parenthChecker(payloadArr)) {
+            sendButton('Your parentheses contain an error', [
+                { title: 'Restart', payload: 'start' },
+                { title: 'Delete', payload: payload.substring(0, payload.lastIndexOf('~', payload.lastIndexOf('~') - 1) + 1) }
+            ]);
+        } else if (!opChecker(payloadArr)) {
+            sendButton('Your operations contain an error', [
+                { title: 'Restart', payload: 'start' },
+                { title: 'Delete', payload: payload.substring(0, payload.lastIndexOf('~', payload.lastIndexOf('~') - 1) + 1) }
+            ]);
+        } else {
+            payloadCombined = combineFormula(payload.substring(0, payload.lastIndexOf('~calc')));
+            var calced = evalablePayload(payloadCombined);
+            sendButton('Your calculated value is: ' + calced, [{ title: 'Perform Another Calc.', payload: 'start' }]);
+        }
+
     } else {
         say(formulaToString(payload));
         sendButton('input next term in your formula', [
             { title: '(', payload: payload + '(~' },
             { title: ')', payload: payload + ')~' },
+            { title: '0', payload: payload + '0~' },
             { title: '1', payload: payload + '1~' },
             { title: '2', payload: payload + '2~' },
             { title: '3', payload: payload + '3~' },
@@ -212,6 +280,7 @@ const state = (payload, say, sendButton) => {
             { title: '7', payload: payload + '7~' },
             { title: '8', payload: payload + '8~' },
             { title: '9', payload: payload + '9~' },
+            { title: '.', payload: payload + '.~' },
             { title: '+', payload: payload + '+~' },
             { title: '-', payload: payload + '-~' },
             { title: '*', payload: payload + '*~' },
@@ -223,9 +292,11 @@ const state = (payload, say, sendButton) => {
             { title: 'sqrt', payload: payload + 'sqrt~' },
             { title: 'ln', payload: payload + 'sqrt~' },
             { title: '^', payload: payload + '^~' },
-            { title: 'e', payload: payload + string(Math.E) + '~' },
-            { title: 'pi', payload: payload + string(Math.PI) + '~' },
-            { title: 'calc', payload: payload + 'calc' }]);
+            { title: 'e', payload: payload + String(Math.E) + '~' },
+            { title: 'pi', payload: payload + String(Math.PI) + '~' },
+            { title: 'Delete', payload: payload.substring(0, payload.lastIndexOf('~', payload.lastIndexOf('~') - 1) + 1) },
+            { title: 'Restart', payload: 'start' },
+            { title: 'Calculate', payload: payload + 'calc' }]);
     }
 
 
